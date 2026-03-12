@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>初三化学方程式默写练习</title>
+    <title>化学方程式专项练习</title>
     <style>
         * {
             margin: 0;
@@ -12,77 +12,76 @@
             font-family: "微软雅黑", sans-serif;
         }
         body {
-            background-color: #f5f7fa;
-            padding: 20px;
+            background: #f5f7fa;
+            padding: 10px;
         }
         .container {
-            max-width: 800px;
-            margin: 0 auto;
+            max-width: 100%;
             background: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         h1 {
             text-align: center;
+            font-size: 20px;
             color: #2c3e50;
-            margin-bottom: 30px;
-            font-size: 24px;
+            margin-bottom: 20px;
         }
         .btn-group {
-            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
             margin-bottom: 20px;
         }
         button {
-            padding: 10px 25px;
-            margin: 0 10px;
+            flex: 1;
+            min-width: 80px;
+            padding: 10px;
             border: none;
             border-radius: 5px;
             background: #3498db;
             color: white;
             font-size: 16px;
             cursor: pointer;
-            transition: background 0.3s;
         }
         button:hover {
             background: #2980b9;
         }
         .question-box {
             border: 1px solid #e0e0e0;
-            padding: 25px;
+            padding: 20px;
             border-radius: 5px;
             margin-bottom: 20px;
         }
         .question {
-            font-size: 18px;
-            line-height: 1.5;
-            color: #3498db;
+            font-size: 17px;
+            color: #34495e;
             margin-bottom: 20px;
-            text-align: center; /* 题目居中 */
+            text-align: center;
             font-weight: 500;
         }
-        /* 横线替换输入框 */
         .answer-line {
             width: 100%;
             height: 3px;
-            background-color: #34495e;
-            margin: 30px 0;
+            background: #34495e;
+            margin: 25px 0;
         }
         .correct-answer {
-            padding: 20px;
+            padding: 15px;
             border-radius: 5px;
             display: none;
             background: #e8f5e9;
             border: 1px solid #c8e6c9;
             color: #2e7d32;
-            font-size: 18px;
-            line-height: 2; /* 增加行高避免条件遮挡等号 */
+            font-size: 17px;
             text-align: center;
+            line-height: 2;
         }
         .show {
             display: block;
         }
-        /* 化学方程式条件样式优化（核心修复） */
         .chem-equation {
             font-family: "Times New Roman", serif;
             position: relative;
@@ -95,39 +94,44 @@
         }
         .condition {
             position: absolute;
-            top: -18px; /* 精准调整垂直位置 */
-            left: 50%;  /* 水平居中 */
-            transform: translateX(-50%); /* 水平居中补偿 */
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
             font-size: 14px;
-            white-space: nowrap; /* 防止条件换行 */
+            white-space: nowrap;
         }
         .equal-sign {
             display: inline-block;
-            padding: 0 8px; /* 给等号两侧留空间 */
+            padding: 0 6px;
+        }
+
+        @media (max-width: 360px) {
+            .container { padding: 15px; }
+            h1 { font-size: 18px; }
+            .question { font-size: 16px; }
+            .correct-answer { font-size: 16px; }
+            button { font-size: 15px; padding: 8px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>初三化学方程式默写专项练习</h1>
+        <h1>化学方程式专项练习</h1>
         <div class="btn-group">
             <button id="randomBtn">随机出题</button>
             <button id="checkBtn">显示答案</button>
             <button id="resetBtn">重置</button>
         </div>
         <div class="question-box">
-            <div class="question" id="question">点击「随机出题」开始练习吧！</div>
-            <!-- 横线替换输入框 -->
+            <div class="question" id="question">点击「随机出题」开始练习</div>
             <div class="answer-line"></div>
             <div class="correct-answer" id="correctAnswer">
                 <p class="chem-equation" id="answerText"></p>
             </div>
         </div>
-        <!-- 已移除底部提示文字 -->
     </div>
 
     <script>
-        // 化学方程式题库（更新为等号+条件正上方格式）
         const chemicalBank = [
             {q: "镁在空气中燃烧", a: "2Mg + O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> 2MgO"},
             {q: "铝在常温下与氧气反应", a: "4Al + 3O₂ = 2Al₂O₃"},
@@ -198,48 +202,48 @@
             {q: "一氧化碳加热还原氧化铜（炼铜）", a: "CO + CuO <span class='condition-wrapper'><span class='condition'>加热</span><span class='equal-sign'>=</span></span> Cu + CO₂"},
             {q: "乙醇在空气中燃烧", a: "C₂H₅OH + 3O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> 2CO₂ + 3H₂O"},
             {q: "甲烷在空气中燃烧", a: "CH₄ + 2O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> CO₂ + 2H₂O"},
-            {q: "氢氧化钠暴露在空气中变质（吸收二氧化碳）", a: "2NaOH + CO₂ = Na₂CO₃ + H₂O"},
+            {q: "氢氧化钠暴露在空气中变质", a: "2NaOH + CO₂ = Na₂CO₃ + H₂O"},
             {q: "氢氧化钠吸收二氧化硫气体", a: "2NaOH + SO₂ = Na₂SO₃ + H₂O"},
             {q: "氢氧化钠和三氧化硫反应", a: "2NaOH + SO₃ = Na₂SO₄ + H₂O"},
             {q: "澄清石灰水检验二氧化碳", a: "Ca(OH)₂ + CO₂ = CaCO₃↓ + H₂O"}
         ];
 
-        // 获取DOM元素
+        let coolPool = [];
+        const COOL_LIMIT = 15;
+        let currentQ = null;
+
         const randomBtn = document.getElementById('randomBtn');
         const checkBtn = document.getElementById('checkBtn');
         const resetBtn = document.getElementById('resetBtn');
         const question = document.getElementById('question');
         const correctAnswer = document.getElementById('correctAnswer');
         const answerText = document.getElementById('answerText');
-        let currentQ = null; // 存储当前题目
 
-        // 随机出题函数
         function getRandomQ() {
-            const randomIndex = Math.floor(Math.random() * chemicalBank.length);
-            currentQ = chemicalBank[randomIndex];
-            question.innerText = currentQ.q;
-            // 重置答案区
+            let available = chemicalBank.filter(item => !coolPool.includes(item.q));
+            if (available.length === 0) coolPool = [];
+            const rand = available[Math.floor(Math.random() * available.length)];
+            currentQ = rand;
+            question.textContent = rand.q;
             correctAnswer.classList.remove('show');
+
+            coolPool.push(rand.q);
+            if (coolPool.length > COOL_LIMIT) coolPool.shift();
         }
 
-        // 显示答案函数
         function showAnswer() {
-            if (!currentQ) {
-                alert('请先点击「随机出题」获取题目！');
-                return;
-            }
+            if (!currentQ) { alert('请先随机出题'); return; }
             correctAnswer.classList.add('show');
-            answerText.innerHTML = currentQ.a; // 使用innerHTML解析HTML格式的方程式
+            answerText.innerHTML = currentQ.a;
         }
 
-        // 重置函数
         function resetPage() {
-            question.innerText = '点击「随机出题」开始练习吧！';
+            question.textContent = '点击「随机出题」开始练习';
             correctAnswer.classList.remove('show');
             currentQ = null;
+            coolPool = [];
         }
 
-        // 绑定事件
         randomBtn.addEventListener('click', getRandomQ);
         checkBtn.addEventListener('click', showAnswer);
         resetBtn.addEventListener('click', resetPage);
