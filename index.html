@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>初三化学方程式默写练习</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        .btn-group {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 25px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            background: #3498db;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .question-box {
+            border: 1px solid #e0e0e0;
+            padding: 25px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .question {
+            font-size: 18px;
+            line-height: 1.5;
+            color: #3498db;
+            margin-bottom: 20px;
+            text-align: center; /* 题目居中 */
+            font-weight: 500;
+        }
+        /* 横线替换输入框 */
+        .answer-line {
+            width: 100%;
+            height: 3px;
+            background-color: #34495e;
+            margin: 30px 0;
+        }
+        .correct-answer {
+            padding: 20px;
+            border-radius: 5px;
+            display: none;
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            color: #2e7d32;
+            font-size: 18px;
+            line-height: 2; /* 增加行高避免条件遮挡等号 */
+            text-align: center;
+        }
+        .show {
+            display: block;
+        }
+        /* 化学方程式条件样式优化（核心修复） */
+        .chem-equation {
+            font-family: "Times New Roman", serif;
+            position: relative;
+            display: inline-block;
+        }
+        .condition-wrapper {
+            position: relative;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .condition {
+            position: absolute;
+            top: -18px; /* 精准调整垂直位置 */
+            left: 50%;  /* 水平居中 */
+            transform: translateX(-50%); /* 水平居中补偿 */
+            font-size: 14px;
+            white-space: nowrap; /* 防止条件换行 */
+        }
+        .equal-sign {
+            display: inline-block;
+            padding: 0 8px; /* 给等号两侧留空间 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>初三化学方程式默写专项练习</h1>
+        <div class="btn-group">
+            <button id="randomBtn">随机出题</button>
+            <button id="checkBtn">显示答案</button>
+            <button id="resetBtn">重置</button>
+        </div>
+        <div class="question-box">
+            <div class="question" id="question">点击「随机出题」开始练习吧！</div>
+            <!-- 横线替换输入框 -->
+            <div class="answer-line"></div>
+            <div class="correct-answer" id="correctAnswer">
+                <p class="chem-equation" id="answerText"></p>
+            </div>
+        </div>
+        <!-- 已移除底部提示文字 -->
+    </div>
+
+    <script>
+        // 化学方程式题库（更新为等号+条件正上方格式）
+        const chemicalBank = [
+            {q: "镁在空气中燃烧", a: "2Mg + O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> 2MgO"},
+            {q: "铝在常温下与氧气反应", a: "4Al + 3O₂ = 2Al₂O₃"},
+            {q: "铁在氧气中燃烧", a: "3Fe + 2O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> Fe₃O₄"},
+            {q: "铜在空气中受热", a: "2Cu + O₂ <span class='condition-wrapper'><span class='condition'>加热</span><span class='equal-sign'>=</span></span> 2CuO"},
+            {q: "硫在空气中燃烧", a: "S + O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> SO₂"},
+            {q: "红磷在空气中燃烧", a: "4P + 5O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> 2P₂O₅"},
+            {q: "碳在氧气中充分燃烧", a: "C + O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> CO₂"},
+            {q: "碳在空气中不充分燃烧", a: "2C + O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> 2CO"},
+            {q: "氢气在空气中燃烧", a: "2H₂ + O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> 2H₂O"},
+            {q: "一氧化碳在空气中燃烧", a: "2CO + O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> 2CO₂"},
+            {q: "碳还原二氧化碳", a: "C + CO₂ <span class='condition-wrapper'><span class='condition'>高温</span><span class='equal-sign'>=</span></span> 2CO"},
+            {q: "氧化钙溶于水", a: "CaO + H₂O = Ca(OH)₂"},
+            {q: "二氧化碳溶于水", a: "H₂O + CO₂ = H₂CO₃"},
+            {q: "加热高锰酸钾制氧气", a: "2KMnO₄ <span class='condition-wrapper'><span class='condition'>加热</span><span class='equal-sign'>=</span></span> K₂MnO₄ + MnO₂ + O₂↑"},
+            {q: "过氧化氢在MnO₂催化下分解", a: "2H₂O₂ <span class='condition-wrapper'><span class='condition'>MnO₂</span><span class='equal-sign'>=</span></span> 2H₂O + O₂↑"},
+            {q: "水在直流电作用下分解", a: "2H₂O <span class='condition-wrapper'><span class='condition'>通电</span><span class='equal-sign'>=</span></span> 2H₂↑ + O₂↑"},
+            {q: "碳酸常温下分解", a: "H₂CO₃ = H₂O + CO₂↑"},
+            {q: "高温煅烧石灰石", a: "CaCO₃ <span class='condition-wrapper'><span class='condition'>高温</span><span class='equal-sign'>=</span></span> CaO + CO₂↑"},
+            {q: "氢氧化铜受热分解", a: "Cu(OH)₂ <span class='condition-wrapper'><span class='condition'>加热</span><span class='equal-sign'>=</span></span> CuO + H₂O"},
+            {q: "锌和稀硫酸反应（实验室制氢气）", a: "Zn + H₂SO₄ = ZnSO₄ + H₂↑"},
+            {q: "铁和稀硫酸反应", a: "Fe + H₂SO₄ = FeSO₄ + H₂↑"},
+            {q: "镁和稀硫酸反应", a: "Mg + H₂SO₄ = MgSO₄ + H₂↑"},
+            {q: "铝和稀硫酸反应", a: "2Al + 3H₂SO₄ = Al₂(SO₄)₃ + 3H₂↑"},
+            {q: "锌和稀盐酸反应", a: "Zn + 2HCl = ZnCl₂ + H₂↑"},
+            {q: "铁和稀盐酸反应", a: "Fe + 2HCl = FeCl₂ + H₂↑"},
+            {q: "镁和稀盐酸反应", a: "Mg + 2HCl = MgCl₂ + H₂↑"},
+            {q: "铝和稀盐酸反应", a: "2Al + 6HCl = 2AlCl₃ + 3H₂↑"},
+            {q: "铝和硫酸铜溶液反应", a: "2Al + 3CuSO₄ = Al₂(SO₄)₃ + 3Cu"},
+            {q: "锌和硫酸铜溶液反应", a: "Zn + CuSO₄ = ZnSO₄ + Cu"},
+            {q: "铜和硝酸银溶液反应", a: "Cu + 2AgNO₃ = Cu(NO₃)₂ + 2Ag"},
+            {q: "铁和硫酸铜溶液反应（湿法冶金）", a: "Fe + CuSO₄ = FeSO₄ + Cu"},
+            {q: "木炭高温还原氧化铜", a: "C + 2CuO <span class='condition-wrapper'><span class='condition'>高温</span><span class='equal-sign'>=</span></span> 2Cu + CO₂↑"},
+            {q: "焦炭高温还原氧化铁", a: "3C + 2Fe₂O₃ <span class='condition-wrapper'><span class='condition'>高温</span><span class='equal-sign'>=</span></span> 4Fe + 3CO₂↑"},
+            {q: "氢气加热还原氧化铜", a: "H₂ + CuO <span class='condition-wrapper'><span class='condition'>加热</span><span class='equal-sign'>=</span></span> Cu + H₂O"},
+            {q: "氢气还原氧化铁", a: "3H₂ + Fe₂O₃ <span class='condition-wrapper'><span class='condition'>加热</span><span class='equal-sign'>=</span></span> 2Fe + 3H₂O"},
+            {q: "盐酸和氢氧化钠反应", a: "HCl + NaOH = NaCl + H₂O"},
+            {q: "盐酸和氢氧化钙反应", a: "2HCl + Ca(OH)₂ = CaCl₂ + 2H₂O"},
+            {q: "盐酸和氢氧化铝反应（治疗胃酸过多）", a: "3HCl + Al(OH)₃ = AlCl₃ + 3H₂O"},
+            {q: "硫酸和氢氧化钠反应", a: "H₂SO₄ + 2NaOH = Na₂SO₄ + 2H₂O"},
+            {q: "盐酸和氢氧化镁反应（治疗胃酸过多）", a: "2HCl + Mg(OH)₂ = MgCl₂ + 2H₂O"},
+            {q: "硫酸和氢氧化钡反应", a: "H₂SO₄ + Ba(OH)₂ = BaSO₄↓ + 2H₂O"},
+            {q: "氧化铁和稀盐酸反应（除铁锈）", a: "Fe₂O₃ + 6HCl = 2FeCl₃ + 3H₂O"},
+            {q: "氧化铁和稀硫酸反应", a: "Fe₂O₃ + 3H₂SO₄ = Fe₂(SO₄)₃ + 3H₂O"},
+            {q: "氧化铜和稀盐酸反应", a: "CuO + 2HCl = CuCl₂ + H₂O"},
+            {q: "氧化铜和稀硫酸反应", a: "CuO + H₂SO₄ = CuSO₄ + H₂O"},
+            {q: "氧化镁和稀硫酸反应", a: "MgO + H₂SO₄ = MgSO₄ + H₂O"},
+            {q: "氧化铝和稀硫酸反应", a: "Al₂O₃ + 3H₂SO₄ = Al₂(SO₄)₃ + 3H₂O"},
+            {q: "大理石与稀盐酸反应（实验室制二氧化碳）", a: "CaCO₃ + 2HCl = CaCl₂ + H₂O + CO₂↑"},
+            {q: "碳酸钠与稀盐酸反应（泡沫灭火器）", a: "Na₂CO₃ + 2HCl = 2NaCl + H₂O + CO₂↑"},
+            {q: "碳酸氢钠与稀盐酸反应（治疗胃酸过多）", a: "NaHCO₃ + HCl = NaCl + H₂O + CO₂↑"},
+            {q: "碳酸镁和稀盐酸反应", a: "MgCO₃ + 2HCl = MgCl₂ + H₂O + CO₂↑"},
+            {q: "碳酸钾和稀盐酸反应", a: "K₂CO₃ + 2HCl = 2KCl + H₂O + CO₂↑"},
+            {q: "碳酸钠和稀硫酸反应", a: "Na₂CO₃ + H₂SO₄ = Na₂SO₄ + H₂O + CO₂↑"},
+            {q: "氯化铵与氢氧化钠反应", a: "NH₄Cl + NaOH = NaCl + NH₃↑ + H₂O"},
+            {q: "硝酸铵与氢氧化钙反应", a: "2NH₄NO₃ + Ca(OH)₂ = Ca(NO₃)₂ + 2NH₃↑ + 2H₂O"},
+            {q: "硫酸铵和氢氧化钠反应", a: "(NH₄)₂SO₄ + 2NaOH = Na₂SO₄ + 2NH₃↑ + 2H₂O"},
+            {q: "氢氧化钠与氯化铁反应", a: "3NaOH + FeCl₃ = Fe(OH)₃↓ + 3NaCl"},
+            {q: "氢氧化钠与硫酸铜反应", a: "2NaOH + CuSO₄ = Cu(OH)₂↓ + Na₂SO₄"},
+            {q: "氢氧化钙与硫酸铜反应（制波尔多液）", a: "Ca(OH)₂ + CuSO₄ = Cu(OH)₂↓ + CaSO₄"},
+            {q: "氢氧化钡与碳酸钠反应", a: "Ba(OH)₂ + Na₂CO₃ = BaCO₃↓ + 2NaOH"},
+            {q: "氢氧化钙与碳酸钠反应", a: "Ca(OH)₂ + Na₂CO₃ = CaCO₃↓ + 2NaOH"},
+            {q: "氢氧化钡与硫酸镁反应", a: "Ba(OH)₂ + MgSO₄ = BaSO₄↓ + Mg(OH)₂↓"},
+            {q: "盐酸和硝酸银溶液反应", a: "HCl + AgNO₃ = AgCl↓ + HNO₃"},
+            {q: "氯化钙与碳酸钠反应", a: "CaCl₂ + Na₂CO₃ = CaCO₃↓ + 2NaCl"},
+            {q: "一氧化碳高温还原氧化铁（炼铁）", a: "3CO + Fe₂O₃ <span class='condition-wrapper'><span class='condition'>高温</span><span class='equal-sign'>=</span></span> 2Fe + 3CO₂"},
+            {q: "一氧化碳还原四氧化三铁（炼铁）", a: "4CO + Fe₃O₄ <span class='condition-wrapper'><span class='condition'>高温</span><span class='equal-sign'>=</span></span> 3Fe + 4CO₂"},
+            {q: "一氧化碳加热还原氧化铜（炼铜）", a: "CO + CuO <span class='condition-wrapper'><span class='condition'>加热</span><span class='equal-sign'>=</span></span> Cu + CO₂"},
+            {q: "乙醇在空气中燃烧", a: "C₂H₅OH + 3O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> 2CO₂ + 3H₂O"},
+            {q: "甲烷在空气中燃烧", a: "CH₄ + 2O₂ <span class='condition-wrapper'><span class='condition'>点燃</span><span class='equal-sign'>=</span></span> CO₂ + 2H₂O"},
+            {q: "氢氧化钠暴露在空气中变质（吸收二氧化碳）", a: "2NaOH + CO₂ = Na₂CO₃ + H₂O"},
+            {q: "氢氧化钠吸收二氧化硫气体", a: "2NaOH + SO₂ = Na₂SO₃ + H₂O"},
+            {q: "氢氧化钠和三氧化硫反应", a: "2NaOH + SO₃ = Na₂SO₄ + H₂O"},
+            {q: "澄清石灰水检验二氧化碳", a: "Ca(OH)₂ + CO₂ = CaCO₃↓ + H₂O"}
+        ];
+
+        // 获取DOM元素
+        const randomBtn = document.getElementById('randomBtn');
+        const checkBtn = document.getElementById('checkBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const question = document.getElementById('question');
+        const correctAnswer = document.getElementById('correctAnswer');
+        const answerText = document.getElementById('answerText');
+        let currentQ = null; // 存储当前题目
+
+        // 随机出题函数
+        function getRandomQ() {
+            const randomIndex = Math.floor(Math.random() * chemicalBank.length);
+            currentQ = chemicalBank[randomIndex];
+            question.innerText = currentQ.q;
+            // 重置答案区
+            correctAnswer.classList.remove('show');
+        }
+
+        // 显示答案函数
+        function showAnswer() {
+            if (!currentQ) {
+                alert('请先点击「随机出题」获取题目！');
+                return;
+            }
+            correctAnswer.classList.add('show');
+            answerText.innerHTML = currentQ.a; // 使用innerHTML解析HTML格式的方程式
+        }
+
+        // 重置函数
+        function resetPage() {
+            question.innerText = '点击「随机出题」开始练习吧！';
+            correctAnswer.classList.remove('show');
+            currentQ = null;
+        }
+
+        // 绑定事件
+        randomBtn.addEventListener('click', getRandomQ);
+        checkBtn.addEventListener('click', showAnswer);
+        resetBtn.addEventListener('click', resetPage);
+    </script>
+</body>
+</html>
